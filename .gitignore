@@ -1,0 +1,10 @@
+.aptos
+.idea
+.vscode
+bytecode_modules
+build
+deps/Amm
+deps/Clmm
+deps/NFTSpringboard
+deps/Panora*
+deps/Tap

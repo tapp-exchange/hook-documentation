@@ -1,0 +1,12 @@
+[package]
+name = "basic"
+version = "1.0.0"
+upgrade_policy = "compatible"
+
+[addresses]
+basic = "0xba51c"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+rev = "testnet"
+subdir = "aptos-framework"
