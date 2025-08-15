@@ -10,7 +10,11 @@
   - [Data Flow and Integration](#data-flow-and-integration)
     - [1. Pool Creation Flow](#1-pool-creation-flow)
     - [2. Add Liquidity Flow](#2-add-liquidity-flow)
-    - [3. Asset Management Flow](#3-asset-management-flow)
+    - [3. Remove Liquidity Flow](#3-remove-liquidity-flow)
+    - [4. Swap Flow](#4-swap-flow)
+    - [5. Collect Fee Flow](#5-collect-fee-flow)
+    - [6. Pool Operation Flow](#6-pool-operation-flow)
+    - [7. Asset Management Flow](#7-asset-management-flow)
   - [Integration Checklist](#integration-checklist)
     - [Before Deployment](#before-deployment)
     - [After Deployment](#after-deployment)
@@ -130,6 +134,8 @@ Every hook module must implement the following interface functions. Go to here: 
 ```
 User → Router::create_pool() → HookFactory::create_pool() → Hook::create_pool()
                                                            ↓
+                                                      Pool State Creation
+                                                           ↓
 User ← Router::PoolCreated event ← HookFactory ← Hook::Created event
 ```
 
@@ -138,13 +144,65 @@ User ← Router::PoolCreated event ← HookFactory ← Hook::Created event
 ```
 User → Router::add_liquidity() → HookFactory::add_liquidity() → Hook::add_liquidity()
                                                               ↓
-User ← Router::LiquidityAdded event ← HookFactory ← Hook::Added event
+                                                        Asset Calculation
+                                                              ↓
+                                                      Position Management
+                                                              ↓
+User ← Router::(LiquidityAdded event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::Added event
 ```
 
-### 3. Asset Management Flow
+### 3. Remove Liquidity Flow
 
 ```
-Router::do_accounting() → Asset Transfers → Reserve Updates → Hook State Updates
+User → Router::remove_liquidity() → HookFactory::remove_liquidity() → Hook::remove_liquidity()
+                                                                   ↓
+                                                            Asset Calculation
+                                                                   ↓
+                                                          Position Management
+                                                                   ↓
+User ← Router::(LiquidityRemoved event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::Removed event
+```
+
+### 4. Swap Flow
+
+```
+User → Router::swap() → HookFactory::swap() → Hook::swap()
+                                              ↓
+                                         Price Calculation
+                                              ↓
+                                         Asset Exchange
+                                              ↓
+User ← Router::(Swapped event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::Swapped event
+```
+
+### 5. Collect Fee Flow
+
+```
+User → Router::collect_fee() → HookFactory::collect_fee() → Hook::collect_fee()
+                                                           ↓
+                                                      Fee Calculation
+                                                           ↓
+                                                      Asset Distribution
+                                                           ↓
+User ← Router::(FeeCollected event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::CollectedFee event
+```
+
+### 6. Pool Operation Flow
+
+```
+User → Router::run_pool_op() → HookFactory::run_pool_op() → Hook::run_pool_op()
+                                                           ↓
+                                                      Custom Operations
+                                                           ↓
+                                                      State Updates
+                                                           ↓
+                                                      Event Emission
+```
+
+### 7. Asset Management Flow
+
+```
+Hook (asset accounting) → HookFactory (hook_factory::Tx) → Router::do_accounting() → Asset Transfers → PoolMeta reserve updates
 ```
 
 ## Integration Checklist
