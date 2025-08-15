@@ -145,7 +145,6 @@ module tapp::fixtures {
         vault_type: u8,
         assets: vector<address>,
         fee: u64,
-        lock_duration: u64
     ): address {
         let args = vector::empty<u8>();
         args.append(to_bytes(&3u8)); // HOOK_VAULT = 3

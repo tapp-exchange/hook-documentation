@@ -153,7 +153,7 @@ module tapp::basic_tests {
         let position_addr = router::position_addr(pool_addr, position_idx);
 
         // Remove liquidity
-        let removed_amounts = remove_liquidity_basic_pool(
+        let _ = remove_liquidity_basic_pool(
             sender,
             pool_addr,
             position_addr,
@@ -200,7 +200,7 @@ module tapp::basic_tests {
         let position_addr = router::position_addr(pool_addr, position_idx);
 
         // Remove all liquidity (should remove position)
-        let removed_amounts = remove_liquidity_basic_pool(
+        let _ = remove_liquidity_basic_pool(
             sender,
             pool_addr,
             position_addr,

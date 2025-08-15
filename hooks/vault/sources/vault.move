@@ -3,7 +3,6 @@ module vault::vault {
     use std::option::{some, none, Option};
     use std::signer::address_of;
     use aptos_std::bcs_stream::{BCSStream, deserialize_u64, deserialize_vector, deserialize_u8};
-    use aptos_std::debug::print;
     use aptos_framework::timestamp;
     use aptos_framework::ordered_map::{Self, OrderedMap};
 
@@ -15,6 +14,7 @@ module vault::vault {
     const ESLOT_NOT_FOUND: u64 = 1;
     const ESLOT_REDEEM_TOO_EARLY: u64 = 2;
     const ENOT_IMPLEMENTED: u64 = 3;
+    const EAMOUNTS_ASSETS_MISMATCH: u64 = 4;
 
     struct Vault<T> has key {
         supported_assets: vector<address>,
@@ -94,6 +94,8 @@ module vault::vault {
             if (position_idx.is_none()) {
                 let lock_duration = deserialize_u64(stream);
                 let amounts = deserialize_vector(stream, |s| deserialize_u64(s));
+                assert!(amounts.length() == vault.supported_assets.length(), EAMOUNTS_ASSETS_MISMATCH);
+
                 let new_slot_idx = vault.slots_count;
                 vault.slots.add(new_slot_idx, TimeLockedSlot {
                     amounts,
@@ -108,6 +110,8 @@ module vault::vault {
                 assert!(vault.slots.contains(&position_idx), ESLOT_NOT_FOUND);
 
                 let amounts = deserialize_vector(stream, |s| deserialize_u64(s));
+                assert!(amounts.length() == vault.supported_assets.length(), EAMOUNTS_ASSETS_MISMATCH);
+
                 let slot = vault.slots.borrow_mut(&position_idx);
                 slot.amounts = slot.amounts.zip_map(amounts, |prev_amount, new_amount| prev_amount + new_amount);
                 return (amounts, none())
@@ -115,6 +119,8 @@ module vault::vault {
         } else if (exists<Vault<InsuranceSlot>>(address_of(pool_signer))) {
             let vault = &mut Vault<InsuranceSlot>[address_of(pool_signer)];
             let amounts = deserialize_vector(stream, |s| deserialize_u64(s));
+            assert!(amounts.length() == vault.supported_assets.length(), EAMOUNTS_ASSETS_MISMATCH);
+
             if (position_idx.is_none()) {
                 let new_slot_idx = vault.slots_count;
                 vault.slots.add(new_slot_idx, InsuranceSlot {

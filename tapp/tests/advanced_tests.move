@@ -93,7 +93,7 @@ module tapp::advanced_tests {
         );
 
         // Create initial position
-        let position_idx = add_liquidity_advanced_pool(
+        let _ = add_liquidity_advanced_pool(
             sender,
             pool_addr,
             none(),
@@ -142,7 +142,7 @@ module tapp::advanced_tests {
         );
 
         // Remove liquidity from position
-        let removed_amounts = remove_liquidity_advanced_pool(
+        let _ = remove_liquidity_advanced_pool(
             sender,
             pool_addr,
             position_addr(pool_addr, position_idx),
@@ -183,7 +183,7 @@ module tapp::advanced_tests {
         );
 
         // Remove all liquidity (complete removal)
-        let removed_amounts = remove_liquidity_advanced_pool(
+        let _ = remove_liquidity_advanced_pool(
             sender,
             pool_addr,
             position_addr(pool_addr, position_idx),
@@ -308,7 +308,7 @@ module tapp::advanced_tests {
         );
 
         // Collect fees from position
-        let fee_amounts = collect_fee_advanced_pool(
+        let _ = collect_fee_advanced_pool(
             sender,
             pool_addr,
             position_addr(pool_addr, position_idx)
