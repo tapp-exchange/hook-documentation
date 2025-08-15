@@ -15,9 +15,10 @@
     - [5. Collect Fee Flow](#5-collect-fee-flow)
     - [6. Pool Operation Flow](#6-pool-operation-flow)
     - [7. Asset Management Flow](#7-asset-management-flow)
-  - [Integration Checklist](#integration-checklist)
-    - [Before Deployment](#before-deployment)
-    - [After Deployment](#after-deployment)
+  - [Submission](#submission)
+    - [Checklists Before Submission](#checklists-before-submission)
+    - [Submission Process](#submission-process)
+    - [TestNet Testing](#testnet-testing)
 
 # TAPP Protocol
 
@@ -207,20 +208,33 @@ User → Router::run_pool_op() → HookFactory::run_pool_op() → Hook::run_pool
 Hook (asset accounting) → HookFactory (hook_factory::Tx) → Router::do_accounting() → Asset Transfers → PoolMeta reserve updates
 ```
 
-## Integration Checklist
+## Submission
 
-### Before Deployment
-- [ ] Implement all required interface functions
-- [ ] Add proper error handling and validation
-- [ ] Emit appropriate events
-- [ ] Write comprehensive tests
-- [ ] Test with main protocol, events and state changes: `tapp/tests/your_hook_tests.move`
-- [ ] Document BCS stream parameters
-- [ ] Validate state management patterns
+### Checklists Before Submission
 
-### After Deployment
-- [ ] Register hook with TAPP factory
-- [ ] Test with main protocol
-- [ ] Monitor events and state changes
-- [ ] Verify asset accounting
-- [ ] Test position management
+- [ ] 1. Implement all required interface functions
+- [ ] 2. Add proper error handling and validation
+- [ ] 3. Emit appropriate events
+- [ ] 4. Write comprehensive tests
+- [ ] 5. Test with main protocol, events and state changes: `tapp/tests/your_hook_tests.move`
+- [ ] 6. Document BCS stream parameters
+- [ ] 7. Validate state management patterns
+
+### Submission Process
+
+1. Submit a PR to this repository.
+2. Double-check the checklists in the PR and ensure you provide all information requested in the PR.
+3. Our team will monitor all PRs and review them ASAP. If you have any questions or concerns, reach us at [discord](https://discord.com/invite/UXGWaaNNr2)
+
+### TestNet Testing
+
+When the submission is ready, we'll schedule **TestNet** testing together. These checklists are for reference purposes and may change on a case-by-case basis depending on the project:
+
+1. Register hook with TAPP factory
+2. Test with main protocol
+3. Monitor events and state changes
+4. Verify asset accounting
+5. Test position management
+
+We will contact you directly to schedule the next steps.
+
