@@ -52,7 +52,7 @@ Follow this guide to implement your own custom hooks and contribute to the TAPP 
 ```
 
 ## Core Components
-The `tapp` folder is a minified version of Tapp EẼchange, it serves the purpose for integrating and testing your hook.
+The `tapp` folder is a minified version of Tapp Exchange, it serves the purpose for integrating and testing your hook.
 
 ### 1. Router (`tapp::router`)
 
