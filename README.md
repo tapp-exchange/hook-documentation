@@ -52,6 +52,7 @@ Follow this guide to implement your own custom hooks and contribute to the TAPP 
 ```
 
 ## Core Components
+The `tapp` folder is a minified version of Tapp EẼchange, it serves the purpose for integrating and testing your hook.
 
 ### 1. Router (`tapp::router`)
 
@@ -90,11 +91,12 @@ The hook factory acts as a registry and router for different hook implementation
 - Pool metadata management
 - Reserve tracking
 
-**Supported Hook Types:**
+**Hook Types:**
 ```move
 const HOOK_BASIC: u8 = 1;      // Simple AMM
 const HOOK_ADVANCED: u8 = 2;   // Advanced features
-const HOOK_VAULT: u8 = 1;      // Vault implementations
+const HOOK_VAULT: u8 = 3;      // Vault implementation
+const YOUR_HOOK: u8 = ... 
 ```
 
 **Core Functions:**
