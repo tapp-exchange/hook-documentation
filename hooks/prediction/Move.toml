@@ -1,0 +1,12 @@
+[package]
+name = "prediction"
+version = "1.0.0"
+upgrade_policy = "compatible"
+
+[addresses]
+prediction = "_"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+rev = "testnet"
+subdir = "aptos-framework"
