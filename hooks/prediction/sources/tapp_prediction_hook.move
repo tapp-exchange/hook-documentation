@@ -530,7 +530,10 @@ module VeriFiPublisher::tapp_prediction_hook {
             let yes_addr = object::object_address(&yes_meta);
             let no_addr = object::object_address(&no_meta);
 
-            // Try both orderings since Tapp router doesn't guarantee order
+            // Tapp sorts tokens by address during pool creation (hook_factory::sort_check_assets)
+            // so token0 < token1 is guaranteed. Check both possible orderings:
+            // Case 1: YES < NO (YES is token0, NO is token1)
+            // Case 2: NO < YES (NO is token0, YES is token1)
             if ((yes_addr == token0_addr && no_addr == token1_addr) ||
                 (yes_addr == token1_addr && no_addr == token0_addr)) {
                 return (market_obj, yes_meta, no_meta)
