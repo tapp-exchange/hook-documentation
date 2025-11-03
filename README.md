@@ -134,78 +134,111 @@ Every hook module must implement the following interface functions. Go to here: 
 
 ### 1. Pool Creation Flow
 
-```
-User → Router::create_pool() → HookFactory::create_pool() → Hook::create_pool()
-                                                           ↓
-                                                      Pool State Creation
-                                                           ↓
-User ← Router::PoolCreated event ← HookFactory ← Hook::Created event
+```mermaid
+flowchart TD
+    User --> Router[Router::create_pool]
+    Router --> Factory[HookFactory::create_pool]
+    Factory --> Hook[Hook::create_pool]
+    Hook --> State[Pool state creation]
+    State --> Event[Hook::Created event]
+    Event --> FactoryBack[HookFactory processing]
+    FactoryBack --> RouterEvent[Router::PoolCreated event]
 ```
 
 ### 2. Add Liquidity Flow
 
-```
-User → Router::add_liquidity() → HookFactory::add_liquidity() → Hook::add_liquidity()
-                                                              ↓
-                                                        Asset Calculation
-                                                              ↓
-                                                      Position Management
-                                                              ↓
-User ← Router::(LiquidityAdded event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::Added event
+```mermaid
+flowchart TD
+    User --> Router[Router::add_liquidity]
+    Router --> Factory[HookFactory::add_liquidity]
+    Factory --> Hook[Hook::add_liquidity]
+    Hook --> Calc[Asset calculation]
+    Calc --> Position[Position management]
+    Position --> Event[Hook::Added event]
+    Event --> Tx[HookFactory / hook_factory::Tx]
+    Tx --> RouterEvent[Router::LiquidityAdded event + do_accounting]
 ```
 
 ### 3. Remove Liquidity Flow
 
-```
-User → Router::remove_liquidity() → HookFactory::remove_liquidity() → Hook::remove_liquidity()
-                                                                   ↓
-                                                            Asset Calculation
-                                                                   ↓
-                                                          Position Management
-                                                                   ↓
-User ← Router::(LiquidityRemoved event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::Removed event
+```mermaid
+flowchart TD
+    User --> Router[Router::remove_liquidity]
+    Router --> Factory[HookFactory::remove_liquidity]
+    Factory --> Hook[Hook::remove_liquidity]
+    Hook --> Calc[Asset calculation]
+    Calc --> Position[Position management]
+    Position --> Event[Hook::Removed event]
+    Event --> Tx[HookFactory / hook_factory::Tx]
+    Tx --> RouterEvent[Router::LiquidityRemoved event + do_accounting]
 ```
 
 ### 4. Swap Flow
 
-```
-User → Router::swap() → HookFactory::swap() → Hook::swap()
-                                              ↓
-                                         Price Calculation
-                                              ↓
-                                         Asset Exchange
-                                              ↓
-User ← Router::(Swapped event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::Swapped event
+```mermaid
+flowchart TD
+    User --> Router[Router::swap]
+    Router --> Factory[HookFactory::swap]
+    Factory --> Hook[Hook::swap]
+    Hook --> Price[Price calculation]
+    Price --> Exchange[Asset exchange]
+    Exchange --> Event[Hook::Swapped event]
+    Event --> Tx[HookFactory / hook_factory::Tx]
+    Tx --> RouterEvent[Router::Swapped event + do_accounting]
 ```
 
 ### 5. Collect Fee Flow
 
-```
-User → Router::collect_fee() → HookFactory::collect_fee() → Hook::collect_fee()
-                                                           ↓
-                                                      Fee Calculation
-                                                           ↓
-                                                      Asset Distribution
-                                                           ↓
-User ← Router::(FeeCollected event and do_accounting) ← HookFactory (hook_factory::Tx) ← Hook::CollectedFee event
+```mermaid
+flowchart TD
+    User --> Router[Router::collect_fee]
+    Router --> Factory[HookFactory::collect_fee]
+    Factory --> Hook[Hook::collect_fee]
+    Hook --> Calc[Fee calculation]
+    Calc --> Dist[Asset distribution]
+    Dist --> Event[Hook::CollectedFee event]
+    Event --> Tx[HookFactory / hook_factory::Tx]
+    Tx --> RouterEvent[Router::FeeCollected event + do_accounting]
 ```
 
 ### 6. Pool Operation Flow
 
-```
-User → Router::run_pool_op() → HookFactory::run_pool_op() → Hook::run_pool_op()
-                                                           ↓
-                                                      Custom Operations
-                                                           ↓
-                                                      State Updates
-                                                           ↓
-                                                      Event Emission
+```mermaid
+flowchart TD
+    User --> Router[Router::run_pool_op]
+    Router --> Factory[HookFactory::run_pool_op]
+    Factory --> Hook[Hook::run_pool_op]
+    Hook --> Ops[Custom operations]
+    Ops --> State[State updates]
+    State --> Event[Event emission]
 ```
 
 ### 7. Asset Management Flow
 
+```mermaid
+flowchart TD
+    Hook[Hook asset accounting]
+        --> HF[HookFactory / hook_factory::Tx]
+        --> RA[router::do_accounting]
+        --> AT[Asset transfers]
+        --> RES[PoolMeta reserve updates]
 ```
-Hook (asset accounting) → HookFactory (hook_factory::Tx) → Router::do_accounting() → Asset Transfers → PoolMeta reserve updates
+
+### 8. Platform Fee Flow
+
+```mermaid
+flowchart TD
+    U[User] --> S[Router::swap]
+    S --> PF[hook_factory::extract_platform_fee]
+    PF --> HF[HookFactory::swap]
+    HF --> H[Hook::swap - swap with deducted pool fee rate]
+    H --> TX[Swap Tx vector / hook_factory::Tx]
+    TX --> ACC1[Router::do_accounting]
+    ACC1 --> EVT[Router::Swapped event emission]
+    EVT --> D{platform fee amount > 0?}
+    D -->|No| DONE[Flow complete]
+    D -->|Yes| ACC2[Router::do_accounting]
+    ACC2 --> RES[Platform fee reserve accrual]
 ```
 
 ## Submission
@@ -237,4 +270,3 @@ When the submission is ready, we'll schedule **TestNet** testing together. These
 5. Test position management
 
 We will contact you directly to schedule the next steps.
-

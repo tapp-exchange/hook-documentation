@@ -1,4 +1,5 @@
 module tapp::router {
+    use std::option;
     use std::option::{none, some};
     use std::signer::address_of;
     use aptos_std::bcs_stream;
@@ -295,6 +296,15 @@ module tapp::router {
             EPOOL_NOTEXISTED
         );
 
+        let (platform_fee_asset, platform_fee_amount, deducted_args) =
+            hook_factory::extract_platform_fee(pool_addr, stream);
+        stream =
+            if (deducted_args.is_empty()) {
+                stream
+            } else {
+                &mut bcs_stream::new(deducted_args)
+            };
+
         let pool_signer = &generate_signer_for_extending(&PoolCap[pool_addr].extend_ref);
         let txs = hook_factory::swap(pool_signer, address_of(sender), stream);
 
@@ -321,6 +331,14 @@ module tapp::router {
                 ts: timestamp::now_microseconds()
             }
         );
+
+        if (platform_fee_asset.is_some() && platform_fee_amount.is_some()) {
+            let pf_asset = *platform_fee_asset.borrow();
+            let pf_amount = *platform_fee_amount.borrow();
+            assert!(pf_amount > 0, ESWAP_AMOUNT_TOO_SMALL_FOR_PLATFORM_FEE);
+            let txs = vector[hook_factory::tx(pf_asset, pf_amount, true)];
+            do_accounting(pool_signer, sender, &vault, txs);
+        };
     }
 
     public entry fun collect_fee(sender: &signer, args: vector<u8>) acquires Manager, PoolCap {

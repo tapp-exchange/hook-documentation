@@ -6,9 +6,12 @@ module basic::basic {
     use aptos_framework::signer;
     use aptos_framework::event;
 
+    const FEE_DENOM: u64 = 10000;
+
     const ENOT_IMPLEMENTED: u64 = 0;
 
     struct PoolState has key {
+        fee: u64,
         state: u64,
         amounts: vector<u64>,
         positions: OrderedMap<u64, Position>,
@@ -54,6 +57,7 @@ module basic::basic {
         move_to(
             pool_signer,
             PoolState {
+                fee,
                 state: 0, // initial state
                 amounts: vector[0, 0], // initial amounts
                 positions: ordered_map::new(),
@@ -155,6 +159,10 @@ module basic::basic {
         let a2b = deserialize_bool(_stream);
         let amount_in = deserialize_u64(_stream);
         let amount_out = deserialize_u64(_stream);
+        let deducted_pool_fee_rate = deserialize_u64(_stream);
+
+        // deduct fee from amount_in based on deducted_pool_fee_rate
+        amount_in -= (amount_in * deducted_pool_fee_rate) / FEE_DENOM;
 
         // do swapping logic
 
@@ -162,5 +170,14 @@ module basic::basic {
 
         // return whether it was a2b swap, amount_in and amount_out
         (a2b, amount_in, amount_out)
+    }
+
+    public fun fee_rate(pool_addr: address): u64 acquires PoolState {
+      let pool = &PoolState[pool_addr];
+      pool.fee
+    }
+
+    public fun fee_denom(): u64 {
+        FEE_DENOM
     }
 }
